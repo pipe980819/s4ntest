@@ -25,21 +25,29 @@ public class Corrientazos {
 			numberOfDeliveries = "3";
 		}
 		for (final File fileEntry : folder.listFiles()) {
-			File file = new File(fileEntry.getName());
-			BufferedReader br = new BufferedReader(new FileReader(routesFolder + file));
-			Dron dron = new Dron(Integer.valueOf(numberOfDeliveries));
-			String route;
-			int delivery = 0;
-			try {
-				while ((route = br.readLine()) != null && delivery < Integer.valueOf(numberOfDeliveries)) {
-					dron.makeDelivery(route);
-					System.out.println(dron.getCurrentPosition().getX() + "," + dron.getCurrentPosition().getY() + "," + dron.getCurrentPosition().getDirection());
-					delivery++;
+			if (fileEntry.getName().startsWith("in")) {
+				File file = new File(fileEntry.getName());
+				BufferedReader br = new BufferedReader(new FileReader(routesFolder + file));
+				Dron dron = new Dron(Integer.valueOf(numberOfDeliveries));
+				String entireRoute = "";
+				int delivery = 0;
+				try {
+					String route;
+					while ((route = br.readLine()) != null && delivery < Integer.valueOf(numberOfDeliveries)) {
+						if (entireRoute.isBlank()) {
+							entireRoute = entireRoute.concat(route);
+						} else {
+							entireRoute = entireRoute.concat("," + route);
+						}
+						delivery++;
+					}
+					dron.makeDelivery(entireRoute);
+					dron.createReport();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					br.close();
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				br.close();
 			}
 		}
 	}
