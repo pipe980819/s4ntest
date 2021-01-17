@@ -2,8 +2,10 @@ package org.s4n.corrientazos.logic;
 
 public interface Operations {
 	
-	public void moveForward();
-	public void turnLeft();
-	public void turnRight();
+	public Coordinate moveForward(Coordinate currentPosition);
+	public Coordinate turnLeft(Coordinate currentPosition);
+	public Coordinate turnRight(Coordinate currentPosition);
+	public void makeDelivery(String entireRoute);
+	public void createReport();
 
 }
