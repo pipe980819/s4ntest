@@ -8,16 +8,23 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Dron implements Operations {
+public class Dron implements Operations, Runnable {
 
 	private List<Coordinate> deliveryCoordinates;
 	private int numberOfDeliveries;
+	private String id;
+	private String entireRoute;
+	private Thread t;
+	private int perimeter;
 
 	public Dron() {}
 
-	public Dron(int numberOfDeliveries) {
+	public Dron(int numberOfDeliveries, String id, int perimeter) {
 		this.numberOfDeliveries = numberOfDeliveries;
 		this.deliveryCoordinates = new ArrayList<Coordinate>();
+		this.id = id;
+		this.t = new Thread(this, id);
+		this.perimeter = perimeter;
 	}
 
 	public Coordinate moveForward(Coordinate currentPosition) {
@@ -26,16 +33,20 @@ public class Dron implements Operations {
 		Direction currentDirection = currentPosition.getDirection();
 
 		if (Direction.N.equals(currentDirection)) {
-			currentPosition.setY(currentY + 1);
+			if(isValidMove(currentY + 1)) currentPosition.setY(currentY + 1);
 		} else if (Direction.E.equals(currentDirection)) {
-			currentPosition.setX(currentX + 1);
+			if(isValidMove(currentX + 1)) currentPosition.setX(currentX + 1);
 		} else if (Direction.S.equals(currentDirection)) {
-			currentPosition.setY(currentY - 1);
+			if(isValidMove(currentY - 1)) currentPosition.setY(currentY - 1);
 		} else if (Direction.W.equals(currentDirection)) {
-			currentPosition.setX(currentX - 1);
+			if(isValidMove(currentX - 1)) currentPosition.setX(currentX - 1);
 		}
 
 		return currentPosition;
+	}
+	
+	private boolean isValidMove(int move) {
+		return Math.abs(move) < perimeter;
 	}
 
 	public Coordinate turnLeft(Coordinate currentPosition) {
@@ -72,27 +83,27 @@ public class Dron implements Operations {
 	public void makeDelivery(String entireRoute) {
 		String[] routes = entireRoute.split(",");
 		for (String route : routes) {
-			Coordinate currentePosition;
+			Coordinate currentPosition;
 			if (getDeliveryCoordinates().isEmpty()) {
-				currentePosition = new Coordinate(0, 0, Direction.N);
+				currentPosition = new Coordinate(0, 0, Direction.N);
 			} else {
 				Coordinate lastPosition = getDeliveryCoordinates().get(getDeliveryCoordinates().size() - 1);
-				currentePosition = new Coordinate(lastPosition.getX(), lastPosition.getY(),
+				currentPosition = new Coordinate(lastPosition.getX(), lastPosition.getY(),
 						lastPosition.getDirection());
 			}
 			for (int i = 0; i < route.length(); i++) {
 				char move = route.charAt(i);
 				if (move == 'A') {
-					currentePosition = moveForward(currentePosition);
+					currentPosition = moveForward(currentPosition);
 				} else if (move == 'I') {
-					currentePosition = turnLeft(currentePosition);
+					currentPosition = turnLeft(currentPosition);
 				} else if (move == 'D') {
-					currentePosition = turnRight(currentePosition);
+					currentPosition = turnRight(currentPosition);
 				} else {
-					System.out.println("Wrong movement");
+					System.out.println("Wrong move");
 				}
 			}
-			getDeliveryCoordinates().add(currentePosition);
+			getDeliveryCoordinates().add(currentPosition);
 		}
 	}
 
@@ -113,12 +124,16 @@ public class Dron implements Operations {
 			lines.add("\n(" + deliveryCoordinate.getX() + ", " + deliveryCoordinate.getY() + ") " + direction + "\n");
 		}
 		try {
-			Path file = Paths.get("src/main/java/org/s4n/corrientazos/routes/out01.txt");
+			Path file = Paths.get("src/main/java/org/s4n/corrientazos/routes/out" + id + ".txt");
 			Files.write(file, lines, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			System.out.println("An error occurred.");
 			e.printStackTrace();
 		}
+	}
+	
+	public void run() {
+		makeDelivery(entireRoute);
 	}
 
 	public List<Coordinate> getDeliveryCoordinates() {
@@ -135,6 +150,22 @@ public class Dron implements Operations {
 
 	public void setNumberOfDeliveries(int numberOfDeliveries) {
 		this.numberOfDeliveries = numberOfDeliveries;
+	}
+
+	public String getEntireRoute() {
+		return entireRoute;
+	}
+
+	public void setEntireRoute(String entireRoute) {
+		this.entireRoute = entireRoute;
+	}
+
+	public Thread getT() {
+		return t;
+	}
+
+	public void setT(Thread t) {
+		this.t = t;
 	}
 
 }
