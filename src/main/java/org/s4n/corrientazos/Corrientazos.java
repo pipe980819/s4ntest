@@ -28,9 +28,10 @@ public class Corrientazos {
 			if (fileEntry.getName().startsWith("in")) {
 				File file = new File(fileEntry.getName());
 				BufferedReader br = new BufferedReader(new FileReader(routesFolder + file));
-				Dron dron = new Dron(Integer.valueOf(numberOfDeliveries));
-				String entireRoute = "";
+				String dronId = fileEntry.getName().substring(2, 4);
+				Dron dron = new Dron(Integer.valueOf(numberOfDeliveries), dronId, Integer.valueOf(mapSize));
 				int delivery = 0;
+				String entireRoute = "";
 				try {
 					String route;
 					while ((route = br.readLine()) != null && delivery < Integer.valueOf(numberOfDeliveries)) {
@@ -41,9 +42,13 @@ public class Corrientazos {
 						}
 						delivery++;
 					}
-					dron.makeDelivery(entireRoute);
+					dron.setEntireRoute(entireRoute);
+					dron.getT().start();
+					Thread.sleep(2000);
 					dron.createReport();
 				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} finally {
 					br.close();
