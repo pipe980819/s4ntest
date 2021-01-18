@@ -15,14 +15,16 @@ public class Dron implements Operations, Runnable {
 	private String id;
 	private String entireRoute;
 	private Thread t;
+	private int perimeter;
 
 	public Dron() {}
 
-	public Dron(int numberOfDeliveries, String id) {
+	public Dron(int numberOfDeliveries, String id, int perimeter) {
 		this.numberOfDeliveries = numberOfDeliveries;
 		this.deliveryCoordinates = new ArrayList<Coordinate>();
 		this.id = id;
 		this.t = new Thread(this, id);
+		this.perimeter = perimeter;
 	}
 
 	public Coordinate moveForward(Coordinate currentPosition) {
@@ -31,16 +33,20 @@ public class Dron implements Operations, Runnable {
 		Direction currentDirection = currentPosition.getDirection();
 
 		if (Direction.N.equals(currentDirection)) {
-			currentPosition.setY(currentY + 1);
+			if(isValidMove(currentY + 1)) currentPosition.setY(currentY + 1);
 		} else if (Direction.E.equals(currentDirection)) {
-			currentPosition.setX(currentX + 1);
+			if(isValidMove(currentX + 1)) currentPosition.setX(currentX + 1);
 		} else if (Direction.S.equals(currentDirection)) {
-			currentPosition.setY(currentY - 1);
+			if(isValidMove(currentY - 1)) currentPosition.setY(currentY - 1);
 		} else if (Direction.W.equals(currentDirection)) {
-			currentPosition.setX(currentX - 1);
+			if(isValidMove(currentX - 1)) currentPosition.setX(currentX - 1);
 		}
 
 		return currentPosition;
+	}
+	
+	private boolean isValidMove(int move) {
+		return Math.abs(move) < perimeter;
 	}
 
 	public Coordinate turnLeft(Coordinate currentPosition) {

@@ -29,7 +29,7 @@ public class Corrientazos {
 				File file = new File(fileEntry.getName());
 				BufferedReader br = new BufferedReader(new FileReader(routesFolder + file));
 				String dronId = fileEntry.getName().substring(2, 4);
-				Dron dron = new Dron(Integer.valueOf(numberOfDeliveries), dronId);
+				Dron dron = new Dron(Integer.valueOf(numberOfDeliveries), dronId, Integer.valueOf(mapSize));
 				int delivery = 0;
 				String entireRoute = "";
 				try {
